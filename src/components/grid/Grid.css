@@ -1,0 +1,35 @@
+/* .grid-container{
+    width:900px;
+    border:1px solid blue;
+}
+Grid.css */
+
+/* Make the table responsive */
+.grid-container {
+    overflow-x: auto;
+    padding: 16px;
+    width:100%;
+    /* border:1px solid blue; */
+  }
+  
+  .ant-table {
+    min-width: 600px; /* Ensures table doesn't collapse below a certain width */
+  }
+  
+  /* Responsive design for smaller screens */
+  @media (max-width: 768px) {
+    .ant-table {
+      font-size: 14px;
+    }
+    
+    .ant-table th,
+    .ant-table td {
+      padding: 8px;
+    }
+    
+    .ant-table-column-sorter,
+    .ant-table-column-filter {
+      display: none; /* Hide sorters and filters on small screens */
+    }
+  }
+  

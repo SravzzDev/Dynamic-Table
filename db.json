@@ -1,0 +1,228 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Laptop",
+      "category": "Electronics",
+      "price": 1200,
+      "stock": 30
+    },
+    {
+      "id": 2,
+      "name": "Smartphone",
+      "category": "Electronics",
+      "price": 800,
+      "stock": 50
+    },
+    {
+      "id": 3,
+      "name": "Desk Chair",
+      "category": "Furnitures",
+      "price": 150,
+      "stock": 20
+    },
+    {
+      "id": 4,
+      "name": "Bluetooth Speaker",
+      "category": "Electronics",
+      "price": 100,
+      "stock": 75
+    },
+    {
+      "id": 5,
+      "name": "Coffee Maker",
+      "category": "Appliances",
+      "price": 60,
+      "stock": 100
+    },
+    {
+      "id": 6,
+      "name": "Gaming Mouse",
+      "category": "Electronics",
+      "price": 50,
+      "stock": 120
+    },
+    {
+      "id": 7,
+      "name": "Office Desk",
+      "category": "Furniture",
+      "price": 300,
+      "stock": 10
+    },
+    {
+      "id": 8,
+      "name": "Monitor",
+      "category": "Electronics",
+      "price": 250,
+      "stock": 45
+    },
+    {
+      "id": 9,
+      "name": "Air Conditioner",
+      "category": "Appliances",
+      "price": 500,
+      "stock": 15
+    },
+    {
+      "id": 10,
+      "name": "Refrigerator",
+      "category": "Appliances",
+      "price": 700,
+      "stock": 25
+    },
+    {
+      "id": 11,
+      "name": "Washing Machine",
+      "category": "Appliances",
+      "price": 400,
+      "stock": 35
+    },
+    {
+      "id": 12,
+      "name": "Smart TV",
+      "category": "Electronics",
+      "price": 900,
+      "stock": 40
+    },
+    {
+      "id": 13,
+      "name": "Headphones",
+      "category": "Electronics",
+      "price": 80,
+      "stock": 90
+    },
+    {
+      "id": 14,
+      "name": "Microwave Oven",
+      "category": "Appliances",
+      "price": 150,
+      "stock": 60
+    },
+    {
+      "id": 15,
+      "name": "Water Heater",
+      "category": "Appliances",
+      "price": 200,
+      "stock": 50
+    },
+    {
+      "id": 16,
+      "name": "Blender",
+      "category": "Appliances",
+      "price": 40,
+      "stock": 80
+    },
+    {
+      "id": 17,
+      "name": "Vacuum Cleaner",
+      "category": "Appliances",
+      "price": 180,
+      "stock": 25
+    },
+    {
+      "id": 18,
+      "name": "Electric Kettle",
+      "category": "Appliances",
+      "price": 30,
+      "stock": 110
+    },
+    {
+      "id": 19,
+      "name": "Sofa",
+      "category": "Furniture",
+      "price": 500,
+      "stock": 8
+    },
+    {
+      "id": 20,
+      "name": "Dining Table",
+      "category": "Furniture",
+      "price": 600,
+      "stock": 5
+    },
+    {
+      "id": 21,
+      "name": "Bookshelf",
+      "category": "Furniture",
+      "price": 120,
+      "stock": 20
+    },
+    {
+      "id": 22,
+      "name": "Bed",
+      "category": "Furnitures",
+      "price": 700,
+      "stock": 10
+    },
+    {
+      "id": 23,
+      "name": "Wardrobe",
+      "category": "Furniture",
+      "price": 800,
+      "stock": 7
+    },
+    {
+      "id": 24,
+      "name": "Ceiling Fan",
+      "category": "Appliances",
+      "price": 60,
+      "stock": 150
+    },
+    {
+      "id": 25,
+      "name": "Table Lamp",
+      "category": "Furniture",
+      "price": 25,
+      "stock": 200
+    },
+    {
+      "id": 26,
+      "name": "Electric Iron",
+      "category": "Appliances",
+      "price": 20,
+      "stock": 130
+    },
+    {
+      "id": 27,
+      "name": "Hair Dryer",
+      "category": "Appliances",
+      "price": 50,
+      "stock": 90
+    },
+    {
+      "id": 28,
+      "name": "Toaster",
+      "category": "Appliances",
+      "price": 30,
+      "stock": 75
+    },
+    {
+      "id": 29,
+      "name": "Mixer Grinder",
+      "category": "Appliances",
+      "price": 100,
+      "stock": 60
+    },
+    {
+      "id": 30,
+      "name": "Water Purifier",
+      "category": "Appliances",
+      "price": 250,
+      "stock": 40
+    },
+    {
+      "id": 31,
+      "name": "Dishwasher",
+      "category": "Appliances",
+      "price": 650,
+      "stock": 12
+    },
+    {
+      "id": 32,
+      "name": "Electric Oven",
+      "category": "Appliances",
+      "price": 300,
+      "stock": 20
+    }
+  ]
+}

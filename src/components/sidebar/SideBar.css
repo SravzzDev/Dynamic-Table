@@ -1,0 +1,33 @@
+.sidebar-menu-container{
+    /* border:5px solid yellow; */
+    display:flex;
+    height:100%;
+}
+
+.sidebar{
+    display: flex;
+    /* flex:1; */
+}
+.sidebar-menu{
+    height:93%;
+    /* flex:1; */
+    /* border:4px solid yellow; */
+}
+.sidebar-menu-container .ant-layout-sider .ant-layout-sider-children{
+    width:100% !important;
+}
+
+.menu-home-button{
+    width:100%;
+    background-color: #001529;
+    color:white;
+    height: 7%;
+    font-size: large;
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 2px solid grey;
+}
+
+.menu-home-button:active, .menu-home-button:hover{
+    background-color: #001529 !important;
+}

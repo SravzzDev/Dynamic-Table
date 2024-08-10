@@ -1,0 +1,10 @@
+.content-container{
+    width:100%;
+    /* border: 1px solid green; */
+    overflow-y: scroll;
+    
+
+    scrollbar-width: none;
+    margin:10px;
+    /* scrollbar-color: transparent; */
+}
