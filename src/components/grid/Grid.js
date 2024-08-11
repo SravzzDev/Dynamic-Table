@@ -49,8 +49,8 @@ const Grid = () => {
         })
       ),
       onFilter: (value, record) => record.category.includes(value),
-      sortDirections: ["ascend", "descend", null],
     },
+    
     {
       title: "Price",
       dataIndex: "price",
