@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Table, Button, Dropdown, Menu, Checkbox, message, Modal ,InputNumber} from "antd";
+import { Form, Input, Table, Button, Dropdown, Menu, Checkbox, message, Modal, InputNumber } from "antd";
 import { MenuOutlined, DownOutlined } from "@ant-design/icons";
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -15,7 +15,8 @@ const Grid = () => {
   const [editingColumn, setEditingColumn] = useState("");
   const [columnsOrder, setColumnsOrder] = useState([]);
   const [tempColumnsOrder, setTempColumnsOrder] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isReorderModalVisible, setIsReorderModalVisible] = useState(false);
+  const [isCreateViewModalVisible, setIsCreateViewModalVisible] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState({
     name: true,
     username: true,
@@ -24,11 +25,26 @@ const Grid = () => {
     website: true,
   });
   const [searchText, setSearchText] = useState("");
+  const [views, setViews] = useState([]);
+  const [newViewName, setNewViewName] = useState('');
+  const [selectedColumns, setSelectedColumns] = useState([]);
 
-  // Check if a cell is being edited
-  const isEditing = (record, column) => record.id === editingKey && column === editingColumn;
+  useEffect(() => {
+    const GetProducts = async () => {
+      try {
+        const products = await FetchProducts();
+        setProducts(products);
+        message.success("Products fetched successfully!");
+      } catch (error) {
+        message.error("Failed to fetch products.");
+      }
+    };
+    GetProducts();
 
-  // Define initial columns
+    const savedViews = JSON.parse(localStorage.getItem('views')) || [];
+    setViews(savedViews);
+    setColumnsOrder(originalColumns); // Default columns
+  }, []);
   const originalColumns = [
     {
       title: "Name",
@@ -71,25 +87,12 @@ const Grid = () => {
       sortDirections: ["ascend", "descend", null],
     },
   ];
-
-  useEffect(() => {
-    const GetProducts = async () => {
-      try {
-        const products = await FetchProducts();
-        setProducts(products);
-        message.success("Products fetched successfully!");
-      } catch (error) {
-        message.error("Failed to fetch products.");
-      }
-    };
-    GetProducts();
-    setColumnsOrder(originalColumns);
-  }, []);
-
   const mergedColumns = columnsOrder.length > 0 ? columnsOrder : originalColumns;
   const visibleMergedColumns = mergedColumns.filter(
     (col) => visibleColumns[col.dataIndex]
   );
+
+  const isEditing = (record, column) => record.id === editingKey && column === editingColumn;
 
   const edit = (record, column) => {
     form.setFieldsValue({ ...record });
@@ -118,7 +121,7 @@ const Grid = () => {
         setEditingKey("");
 
         // Update the product on the server
-        const response = await axios.put(`http://localhost:5000/products/${item.id}`, updatedItem);
+        await axios.put(`https://jsonplaceholder.typicode.com/users/${item.id}`, updatedItem);
         message.success("Product updated successfully!");
       }
     } catch (errInfo) {
@@ -165,9 +168,9 @@ const Grid = () => {
     );
   };
 
-  const showModal = () => {
+  const showReorderModal = () => {
     setTempColumnsOrder(mergedColumns);
-    setIsModalVisible(true);
+    setIsReorderModalVisible(true);
   };
 
   const handleDrop = (item, index) => {
@@ -220,13 +223,56 @@ const Grid = () => {
     );
   };
 
-  const handleOk = () => {
+  const handleReorderOk = () => {
     setColumnsOrder(tempColumnsOrder);
-    setIsModalVisible(false);
+    setIsReorderModalVisible(false);
   };
 
-  const handleCancel = () => {
-    setIsModalVisible(false);
+  const handleReorderCancel = () => {
+    setIsReorderModalVisible(false);
+  };
+
+  const handleCreateView = () => {
+    if (!newViewName) {
+      message.error("Please enter a view name.");
+      return;
+    }
+
+    const newView = {
+      name: newViewName,
+      columns: selectedColumns,
+    };
+
+    const existingViews = JSON.parse(localStorage.getItem('views')) || [];
+    localStorage.setItem('views', JSON.stringify([...existingViews, newView]));
+
+    setViews([...existingViews, newView]);
+    setNewViewName(''); // Clear the new view name
+    setSelectedColumns([]);
+    setIsCreateViewModalVisible(false);
+    message.success("View created successfully!");
+  };
+
+  const handleCheckboxChange = (column, checked) => {
+    setSelectedColumns(prev =>
+      checked ? [...prev, column] : prev.filter(c => c !== column)
+    );
+  };
+
+  const handleViewClick = (view) => {
+    const columns = originalColumns.filter(col => view.columns.includes(col.dataIndex));
+    setColumnsOrder(columns);
+    message.info(`Viewing ${view.name}`);
+  };
+
+  const handleDeleteView = (viewName) => {
+    const updatedViews = views.filter(view => view.name !== viewName);
+    localStorage.setItem('views', JSON.stringify(updatedViews));
+    setViews(updatedViews);
+    if (updatedViews.length === 0) {
+      setColumnsOrder(originalColumns); // Revert to default view if no saved views
+    }
+    message.success(`View ${viewName} deleted.`);
   };
 
   const handleColumnVisibilityChange = (column) => {
@@ -237,7 +283,7 @@ const Grid = () => {
     message.info(`${column} visibility toggled`);
   };
 
-  const menu = (
+  const columnVisibilityMenu = (
     <Menu>
       {originalColumns.map((col) => (
         <Menu.Item key={col.dataIndex}>
@@ -268,53 +314,93 @@ const Grid = () => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="grid-container">
-        <Button onClick={showModal}>Reorder Columns</Button>
+        <Button onClick={showReorderModal}>Reorder Columns</Button>
         <Input.Search
           placeholder="Search all fields"
           value={searchText}
           onChange={handleSearch}
           style={{ marginBottom: 16, width: 300, marginRight: "30px", marginLeft: "30px" }}
         />
-        <Dropdown overlay={menu} trigger={['click']}>
-          <Button>
+        <Dropdown overlay={columnVisibilityMenu}  >
+          <Button style={{  marginRight: "30px" }}>
             Column Visibility <DownOutlined />
           </Button>
         </Dropdown>
+        <Dropdown overlay={
+          <Menu>
+            {views.map(view => (
+              <Menu.Item key={view.name}>
+                <Button onClick={() => handleViewClick(view)}>{view.name}</Button>
+                <Button onClick={() => handleDeleteView(view.name)} danger>Delete</Button>
+              </Menu.Item>
+            ))}
+          </Menu>
+        }>
+          <Button style={{  marginRight: "30px" }}>
+            Saved Views <DownOutlined />
+          </Button>
+        </Dropdown>
+        <Button onClick={() => setIsCreateViewModalVisible(true)}>Create New View</Button>
         <Form form={form} component={false}>
-          <Table
-            components={{ body: { cell: EditableCell } }}
-            bordered
-            columns={visibleMergedColumns.map((col, index) => ({
-              ...col,
-              onCell: (record) => ({
-                record,
-                inputType: col.dataIndex === "phone" ? "number" : "text",
-                dataIndex: col.dataIndex,
-                title: col.title,
-                editing: isEditing(record, col.dataIndex),
-              }),
-            }))}
-            dataSource={filteredData}
-            rowKey="id"
-            pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ["5", "10", "15", "20"] }}
-          />
+        <Table
+          components={{ body: { cell: EditableCell } }}
+          bordered
+          columns={visibleMergedColumns.map((col, index) => ({
+            ...col,
+            onCell: (record) => ({
+              record,
+              inputType: col.dataIndex === "phone" ? "number" : "text",
+              dataIndex: col.dataIndex,
+              title: col.title,
+              editing: isEditing(record, col.dataIndex),
+            }),
+          }))}
+          dataSource={filteredData}
+          rowKey="id"
+      
+          pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ["5", "10", "15", "20"] }}
+        />
         </Form>
         <Modal
           title="Reorder Columns"
-          visible={isModalVisible}
-          onOk={handleOk}
-          onCancel={handleCancel}
-          width={600}
+          visible={isReorderModalVisible}
+          onOk={handleReorderOk}
+          onCancel={handleReorderCancel}
         >
-          <ul style={{ listStyleType: "none", padding: 0, margin: 0 }}>
+          <ul style={{ padding: 0, listStyleType: "none" }}>
             {tempColumnsOrder.map((column, index) => (
               <ColumnItem key={column.dataIndex} column={column} index={index} />
             ))}
           </ul>
         </Modal>
+        <Modal
+          title="Create New View"
+          visible={isCreateViewModalVisible}
+          onOk={handleCreateView}
+          onCancel={() => setIsCreateViewModalVisible(false)}
+        >
+          <Form.Item label="View Name">
+            <Input value={newViewName} onChange={(e) => setNewViewName(e.target.value)} />
+          </Form.Item>
+          <Form.Item label="Select Columns">
+    <div>
+      {originalColumns.map((col) => (
+        <Checkbox
+          key={col.dataIndex}
+          checked={selectedColumns.includes(col.dataIndex)}
+          onChange={(e) => handleCheckboxChange(col.dataIndex, e.target.checked)}
+        >
+          {col.title}
+        </Checkbox>
+      ))}
+    </div>
+  </Form.Item>
+        </Modal>
       </div>
     </DndProvider>
   );
 };
+
+
 
 export default Grid;
