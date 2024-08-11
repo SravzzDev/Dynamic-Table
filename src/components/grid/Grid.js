@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, InputNumber, Table, Button, Dropdown, Menu, Checkbox, message, Modal } from "antd";
+import { Form, Input, Table, Button, Dropdown, Menu, Checkbox, message, Modal ,InputNumber} from "antd";
 import { MenuOutlined, DownOutlined } from "@ant-design/icons";
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { FetchProducts } from "../../api/Api";
 import axios from "axios";
 import "./Grid.css";
-import { TouchBackend } from 'react-dnd-touch-backend';
+
 const Grid = () => {
   // State hooks
   const [products, setProducts] = useState([]);
@@ -18,9 +18,10 @@ const Grid = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState({
     name: true,
-    category: true,
-    price: true,
-    stock: true,
+    username: true,
+    email: true,
+    phone: true,
+    website: true,
   });
   const [searchText, setSearchText] = useState("");
 
@@ -38,32 +39,35 @@ const Grid = () => {
       sortDirections: ["ascend", "descend", null],
     },
     {
-      title: "Category",
-      dataIndex: "category",
+      title: "Username",
+      dataIndex: "username",
       editable: true,
       width: 200,
-      filters: [...new Set(products.map((item) => item.category))].map(
-        (category) => ({
-          text: category,
-          value: category,
-        })
-      ),
-      onFilter: (value, record) => record.category.includes(value),
-    },
-    
-    {
-      title: "Price",
-      dataIndex: "price",
-      editable: true,
-      width: 200,
-      sorter: (a, b) => a.price - b.price,
+      sorter: (a, b) => a.username.localeCompare(b.username),
       sortDirections: ["ascend", "descend", null],
     },
     {
-      title: "Stock",
-      dataIndex: "stock",
+      title: "Email",
+      dataIndex: "email",
+      editable: true,
+      width: 250,
+      sorter: (a, b) => a.email.localeCompare(b.email),
+      sortDirections: ["ascend", "descend", null],
+    },
+    {
+      title: "Phone",
+      dataIndex: "phone",
       editable: true,
       width: 200,
+      sorter: (a, b) => a.phone.localeCompare(b.phone),
+      sortDirections: ["ascend", "descend", null],
+    },
+    {
+      title: "Website",
+      dataIndex: "website",
+      editable: true,
+      width: 250,
+      sorter: (a, b) => a.website.localeCompare(b.website),
       sortDirections: ["ascend", "descend", null],
     },
   ];
@@ -269,9 +273,9 @@ const Grid = () => {
           placeholder="Search all fields"
           value={searchText}
           onChange={handleSearch}
-          style={{ marginBottom: 16, width: 300, marginRight: "30px",marginLeft:"30px" }}
+          style={{ marginBottom: 16, width: 300, marginRight: "30px", marginLeft: "30px" }}
         />
-        <Dropdown ovrlay={menu} trigger={['click']}>
+        <Dropdown overlay={menu} trigger={['click']}>
           <Button>
             Column Visibility <DownOutlined />
           </Button>
@@ -284,25 +288,25 @@ const Grid = () => {
               ...col,
               onCell: (record) => ({
                 record,
-                inputType: col.dataIndex === "price" || col.dataIndex === "stock" ? "number" : "text",
+                inputType: col.dataIndex === "phone" ? "number" : "text",
                 dataIndex: col.dataIndex,
                 title: col.title,
                 editing: isEditing(record, col.dataIndex),
               }),
             }))}
             dataSource={filteredData}
+            rowKey="id"
             pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ["5", "10", "15", "20"] }}
-            rowKey={"id"}
           />
         </Form>
         <Modal
           title="Reorder Columns"
-          open={isModalVisible}
+          visible={isModalVisible}
           onOk={handleOk}
           onCancel={handleCancel}
           width={600}
         >
-          <ul>
+          <ul style={{ listStyleType: "none", padding: 0, margin: 0 }}>
             {tempColumnsOrder.map((column, index) => (
               <ColumnItem key={column.dataIndex} column={column} index={index} />
             ))}
