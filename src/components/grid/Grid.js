@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, InputNumber, Table, Button, Dropdown, Menu, Checkbox, message } from "antd";
+import { Form, Input, InputNumber, Table, Button, Dropdown, Menu, Checkbox, message, Modal } from "antd";
 import { MenuOutlined, DownOutlined } from "@ant-design/icons";
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { FetchProducts } from "../../api/Api";
 import axios from "axios";
 import "./Grid.css";
-
+import { TouchBackend } from 'react-dnd-touch-backend';
 const Grid = () => {
-  // State hooks for managing products data, form instance, editing state, column order, and visibility.
+  // State hooks
   const [products, setProducts] = useState([]);
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState("");
   const [editingColumn, setEditingColumn] = useState("");
   const [columnsOrder, setColumnsOrder] = useState([]);
+  const [tempColumnsOrder, setTempColumnsOrder] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState({
     name: true,
     category: true,
@@ -22,10 +24,10 @@ const Grid = () => {
   });
   const [searchText, setSearchText] = useState("");
 
-  // Function to determine if a row and column are being edited
+  // Check if a cell is being edited
   const isEditing = (record, column) => record.id === editingKey && column === editingColumn;
 
-  // Initial column definitions
+  // Define initial columns
   const originalColumns = [
     {
       title: "Name",
@@ -66,7 +68,6 @@ const Grid = () => {
     },
   ];
 
-  // Fetch products and set initial column order on component mount
   useEffect(() => {
     const GetProducts = async () => {
       try {
@@ -81,13 +82,11 @@ const Grid = () => {
     setColumnsOrder(originalColumns);
   }, []);
 
-  // Merge columns with current order and filter based on visibility
   const mergedColumns = columnsOrder.length > 0 ? columnsOrder : originalColumns;
   const visibleMergedColumns = mergedColumns.filter(
     (col) => visibleColumns[col.dataIndex]
   );
 
-  // Function to handle editing of a record
   const edit = (record, column) => {
     form.setFieldsValue({ ...record });
     setEditingKey(record.id);
@@ -95,14 +94,12 @@ const Grid = () => {
     message.info(`Editing ${column} for ${record.name}`);
   };
 
-  // Function to cancel editing
   const cancel = () => {
     setEditingKey("");
     setEditingColumn("");
     message.info("Edit cancelled");
   };
 
-  // Function to save changes to a record
   const save = async () => {
     try {
       const row = await form.validateFields();
@@ -125,7 +122,6 @@ const Grid = () => {
     }
   };
 
-  // EditableCell component for rendering editable cells
   const EditableCell = ({
     editing,
     dataIndex,
@@ -137,7 +133,6 @@ const Grid = () => {
   }) => {
     const inputNode = inputType === "number" ? <InputNumber /> : <Input />;
 
-    // Save changes when Enter key is pressed
     const handleKeyDown = (event) => {
       if (event.key === "Enter") {
         save();
@@ -166,48 +161,70 @@ const Grid = () => {
     );
   };
 
-  // ColumnHeader component for handling drag-and-drop column reordering
-  const ColumnHeader = ({ column, index }) => {
-    const [, drag] = useDrag({
+  const showModal = () => {
+    setTempColumnsOrder(mergedColumns);
+    setIsModalVisible(true);
+  };
+
+  const handleDrop = (item, index) => {
+    const reorderedColumns = Array.from(tempColumnsOrder);
+    const [movedColumn] = reorderedColumns.splice(item.index, 1);
+    reorderedColumns.splice(index, 0, movedColumn);
+    setTempColumnsOrder(reorderedColumns);
+  };
+
+  const ColumnItem = ({ column, index }) => {
+    const [{ isDragging }, drag] = useDrag({
       type: "COLUMN",
       item: { index },
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+      }),
     });
 
     const [, drop] = useDrop({
       accept: "COLUMN",
       hover: (item) => {
         if (item.index !== index) {
-          const reorderedColumns = Array.from(columnsOrder);
-          const [movedColumn] = reorderedColumns.splice(item.index, 1);
-          reorderedColumns.splice(index, 0, movedColumn);
-          setColumnsOrder(reorderedColumns);
+          handleDrop(item, index);
           item.index = index;
-          message.info("Column reordered");
         }
       },
     });
 
     return (
-      <th
+      <li
         ref={(node) => drag(drop(node))}
         style={{
-          opacity: 1,
+          opacity: isDragging ? 0.5 : 1,
           userSelect: "none",
-          padding: 5,
+          padding: 16,
           marginBottom: 8,
+          backgroundColor: "#ffffff",
+          border: "1px solid #d9d9d9",
           borderRadius: "4px",
-          cursor: "move",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
-        <span style={{ display: "flex", alignItems: "center" }}>
+        <span style={{ cursor: "grab" }}>
           <MenuOutlined style={{ marginRight: 8 }} />
           {column.title}
         </span>
-      </th>
+      </li>
     );
   };
 
-  // Function to toggle column visibility
+  const handleOk = () => {
+    setColumnsOrder(tempColumnsOrder);
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
   const handleColumnVisibilityChange = (column) => {
     setVisibleColumns((prev) => ({
       ...prev,
@@ -216,7 +233,6 @@ const Grid = () => {
     message.info(`${column} visibility toggled`);
   };
 
-  // Menu for toggling column visibility
   const menu = (
     <Menu>
       {originalColumns.map((col) => (
@@ -224,7 +240,7 @@ const Grid = () => {
           <Checkbox
             checked={visibleColumns[col.dataIndex]}
             onChange={() => handleColumnVisibilityChange(col.dataIndex)}
-            onClick={(e) => e.stopPropagation()} // Prevents dropdown from closing
+            onClick={(e) => e.stopPropagation()}
           >
             {col.title}
           </Checkbox>
@@ -233,13 +249,11 @@ const Grid = () => {
     </Menu>
   );
 
-  // Function to handle search input
   const handleSearch = (e) => {
     const { value } = e.target;
     setSearchText(value);
   };
 
-  // Filter products based on search text
   const filteredData = products.filter((product) =>
     Object.values(product)
       .join(" ")
@@ -250,24 +264,24 @@ const Grid = () => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="grid-container">
+        <Button onClick={showModal}>Reorder Columns</Button>
         <Input.Search
           placeholder="Search all fields"
           value={searchText}
           onChange={handleSearch}
-          style={{ marginBottom: 16, width: 300, marginRight: "30px" }}
+          style={{ marginBottom: 16, width: 300, marginRight: "30px",marginLeft:"30px" }}
         />
-        <Dropdown overlay={menu} trigger={['click']}>
+        <Dropdown ovrlay={menu} trigger={['click']}>
           <Button>
             Column Visibility <DownOutlined />
           </Button>
         </Dropdown>
         <Form form={form} component={false}>
           <Table
-            components={{ body: { cell: EditableCell, header: { cell: ColumnHeader } } }}
+            components={{ body: { cell: EditableCell } }}
             bordered
             columns={visibleMergedColumns.map((col, index) => ({
               ...col,
-              title: <ColumnHeader column={col} index={index} />,
               onCell: (record) => ({
                 record,
                 inputType: col.dataIndex === "price" || col.dataIndex === "stock" ? "number" : "text",
@@ -281,6 +295,19 @@ const Grid = () => {
             rowKey={"id"}
           />
         </Form>
+        <Modal
+          title="Reorder Columns"
+          open={isModalVisible}
+          onOk={handleOk}
+          onCancel={handleCancel}
+          width={600}
+        >
+          <ul>
+            {tempColumnsOrder.map((column, index) => (
+              <ColumnItem key={column.dataIndex} column={column} index={index} />
+            ))}
+          </ul>
+        </Modal>
       </div>
     </DndProvider>
   );

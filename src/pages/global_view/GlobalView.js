@@ -3,7 +3,7 @@ import "./GlobalView.css";
 import Grid from "../../components/grid/Grid";
 import { useState } from "react";
 
-const { TabPane } = Tabs;
+const { Title } = Typography;
 
 const GlobalView = () => {
   const [activeTab, setActiveTab] = useState("myView");
@@ -12,20 +12,23 @@ const GlobalView = () => {
     setActiveTab(key);
   };
 
+  const tabItems = [
+    { label: "My View", key: "myView" },
+    { label: "Team View", key: "teamView" },
+    { label: "Custom View", key: "customView" },
+    { label: "Zohi Analytics", key: "zohiAnalytics" },
+  ];
+
   return (
     <div className="global-view-container">
-      <Typography.Title level={3}>Global View</Typography.Title>
+      <Title level={3}>Global View</Title>
       
       <Tabs
         activeKey={activeTab}
         onChange={handleTabChange}
         className="custom-tabs"
-      >
-        <TabPane tab="My View" key="myView" />
-        <TabPane tab="Team View" key="teamView" />
-        <TabPane tab="Custom View" key="customView" />
-        <TabPane tab="Zohi Analytics" key="zohiAnalytics" />
-      </Tabs>
+        items={tabItems}
+      />
       
       <Grid />
     </div>

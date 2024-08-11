@@ -36,7 +36,7 @@ const EditableCell = ({
             {inputNode}
           </Form.Item>
         ) : (
-         
+          // Render the default cell content when not editing
           children
         )}
       </td>

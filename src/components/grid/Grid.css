@@ -17,7 +17,7 @@ Grid.css */
   }
   
   /* Responsive design for smaller screens */
-  @media (max-width: 768px) {
+  /* @media (max-width: 768px) {
     .ant-table {
       font-size: 14px;
     }
@@ -29,7 +29,7 @@ Grid.css */
     
     .ant-table-column-sorter,
     .ant-table-column-filter {
-      display: none; /* Hide sorters and filters on small screens */
+      display: none; 
     }
-  }
+  } */
   
